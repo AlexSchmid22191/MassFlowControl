@@ -10,7 +10,7 @@ from Ventolino import Ventolino
 addTopicDefnProvider(topic_def, TOPIC_TREE_FROM_CLASS)
 
 
-def main_thread(func):
+def in_main_thread(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         wx.CallAfter(func, *args, **kwargs)
@@ -23,6 +23,7 @@ class VentolinoGUI(wx.Frame):
         super().__init__(*args, **kwargs)
 
         self.channels = channels
+
         self.timer = wx.Timer(self)
         self.Bind(event=wx.EVT_TIMER, source=self.timer, handler=self.update)
 
@@ -57,11 +58,14 @@ class VentolinoGUI(wx.Frame):
     def on_quit(self, *args):
         self.Close()
 
+    @in_main_thread
     def set_status(self, text=''):
-        wx.CallAfter(lambda: self.status_bar.SetStatusText(text))
-        wx.CallAfter(lambda: wx.CallLater(millis=4000, callableObj=self.status_bar.SetStatusText, text=''))
+        """Display text in status bar, clear status bar after 4 seconds. Can be called from external Thread"""
+        self.status_bar.SetStatusText(text)
+        wx.CallLater(millis=4000, callableObj=self.status_bar.SetStatusText, text='')
 
     def update(self, *args):
+        """Request data from the engine"""
         for chan in range(self.channels):
             sendMessage(topicName='GTE_read_is_flow', channel=chan+1)
             sendMessage(topicName='GTE_read_set_flow', channel=chan+1)
@@ -69,6 +73,7 @@ class VentolinoGUI(wx.Frame):
         self.timer.Start(1000)
 
     def on_connect(self, *args):
+        """Start timer for GUI update on serial conection"""
         self.timer.Start(2000)
 
 
@@ -110,14 +115,16 @@ class MFCChannelPanel(wx.Panel):
         assert 0.0 <= flow_value <= 100.0, 'Invalid flow percentage'
         sendMessage(topicName='GTE_set_flow', channel=self.channel, flow=flow_value)
 
-    def update_flow_is_data(self, channel=1, flow=0):
+    @in_main_thread
+    def update_flow_is_data(self, channel, flow):
         if channel == self.channel:
-            wx.CallAfter(lambda: self.is_label.SetLabel('Flow: {:3.1f}%'.format(flow)))
-            wx.CallAfter(lambda: self.gauge.SetValue(int(flow)))
+            self.is_label.SetLabel('Flow: {:3.1f}%'.format(flow))
+            self.gauge.SetValue(int(flow))
 
+    @in_main_thread
     def update_flow_set_data(self, channel, flow):
         if channel == self.channel:
-            wx.CallAfter(lambda: self.set_label.SetLabel('Set: {:3.1f}%'.format(flow)))
+            self.set_label.SetLabel('Set: {:3.1f}%'.format(flow))
 
 
 class Menubar(wx.MenuBar):
@@ -165,9 +172,6 @@ class PortMenu(wx.Menu):
         else:
             self.timer.Stop()
             sendMessage(topicName='GTE_disconnect')
-
-
-
 
 
 def main():
