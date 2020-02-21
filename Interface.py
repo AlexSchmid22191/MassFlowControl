@@ -1,21 +1,12 @@
-from functools import wraps
-
 import wx
 from pubsub.pub import subscribe, sendMessage, addTopicDefnProvider, TOPIC_TREE_FROM_CLASS
 from serial.tools.list_ports import comports
+from ThreadDecorators import in_main_thread
 
 import topic_def
 from Ventolino import Ventolino
 
 addTopicDefnProvider(topic_def, TOPIC_TREE_FROM_CLASS)
-
-
-def in_main_thread(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        wx.CallAfter(func, *args, **kwargs)
-
-    return wrapper
 
 
 class VentolinoGUI(wx.Frame):

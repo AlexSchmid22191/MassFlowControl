@@ -1,17 +1,7 @@
-from functools import wraps
-from threading import Thread, Lock
-
+from threading import Lock
 from pubsub.pub import subscribe, sendMessage
 from serial import Serial, SerialException
-
-
-def in_new_thread(target_func):
-    @wraps(target_func)
-    def wrapper(*args, **kwargs):
-        com_thread = Thread(target=target_func, args=args, kwargs=kwargs)
-        com_thread.start()
-    return wrapper
-
+from ThreadDecorators import in_new_thread
 
 class Ventolino(Serial):
     """Driver class for Ventolino MFC controllers, uses Pubsub to communicate with GUI"""
