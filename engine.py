@@ -57,7 +57,7 @@ class Ventolino(Serial):
 
                 answer = self.readline()
 
-                if answer == b'rec\n':
+                if answer == b'rec\r\n':
                     sendMessage('ETG_status', text='Channel {:1d} set to {:4.1f} %.'.format(channel, flow))
                 else:
                     sendMessage('ETG_status', text='Ventolino not answering')
