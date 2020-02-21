@@ -17,12 +17,6 @@ class Ventolino(Serial):
         self.is_flows = [0.0]*channels
 
         subscribe(self.connect, 'GTE_connect')
-        subscribe(self.disconnect, 'GTE_disconnect')
-        subscribe(self.set_flow, 'GTE_set_flow')
-        subscribe(self.read_is_flow, 'GTE_read_is_flow')
-        subscribe(self.read_set_flow, 'GTE_read_set_flow')
-        subscribe(self.read_all_channels_is, 'GTE_read_all_channels_is')
-        subscribe(self.read_all_channels_set, 'GTE_read_all_channels_set')
 
     def connect(self, port=None):
         """Connect to serial port, emmit success/error message"""
@@ -31,6 +25,14 @@ class Ventolino(Serial):
         try:
             self.open()
             sendMessage(topicName='ETG_status', text='Ventolino connected')
+
+            subscribe(self.disconnect, 'GTE_disconnect')
+            subscribe(self.set_flow, 'GTE_set_flow')
+            subscribe(self.read_is_flow, 'GTE_read_is_flow')
+            subscribe(self.read_set_flow, 'GTE_read_set_flow')
+            subscribe(self.read_all_channels_is, 'GTE_read_all_channels_is')
+            subscribe(self.read_all_channels_set, 'GTE_read_all_channels_set')
+
         except SerialException:
             sendMessage(topicName='ETG_status', text='Serial connection error')
 
@@ -54,9 +56,9 @@ class Ventolino(Serial):
                 self.write(b'\x0D')
 
                 answer = self.readline()
-                print(answer)
+
                 if answer == b'rec\n':
-                    sendMessage('ETG_status', text='Chnnale {:1d} set to {:4.1f} %.'.format(channel, flow))
+                    sendMessage('ETG_status', text='Channel {:1d} set to {:4.1f} %.'.format(channel, flow))
                 else:
                     sendMessage('ETG_status', text='Ventolino not answering')
 

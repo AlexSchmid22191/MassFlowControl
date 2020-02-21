@@ -2,7 +2,6 @@ import wx
 from pubsub.pub import subscribe, sendMessage
 from serial.tools.list_ports import comports
 from ThreadDecorators import in_main_thread
-from engine import Ventolino
 
 
 class VentolinoGUI(wx.Frame):
@@ -169,6 +168,6 @@ class PortMenu(wx.Menu):
         self.portItems = [wx.MenuItem(parentMenu=self, id=wx.ID_ANY, text=port, kind=wx.ITEM_RADIO)
                           for port in list(self.portdict.keys())]
 
-        for item in reversed(self.portItems):
-            self.Insert(0, item)
+        for pos, item in enumerate(self.portItems):
+            self.Insert(pos, item)
 
