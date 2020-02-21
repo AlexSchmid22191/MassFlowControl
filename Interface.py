@@ -136,26 +136,39 @@ class PortMenu(wx.Menu):
 
         self.timer = timer
 
-        self.portdict = self.port_dict = {port[1]: port[0] for port in comports()}
-        self.portItems = [wx.MenuItem(parentMenu=self, id=wx.ID_ANY, text=port, kind=wx.ITEM_RADIO)
-                          for port in list(self.port_dict.keys())]
+        self.portdict = {}
+        self.portItems = []
 
-        for item in self.portItems:
-            self.Append(item)
-
-        self.AppendSeparator()
+        self.make_port_list()
 
         self.refresh = self.Append(id=wx.ID_ANY, item='Refresh')
         self.connect = self.Append(id=wx.ID_ANY, item='Connect', kind=wx.ITEM_CHECK)
         self.Bind(event=wx.EVT_MENU, handler=self.on_connect, source=self.connect)
+        self.Bind(event=wx.EVT_MENU, handler=self.refresh_ports, source=self.refresh)
 
     def on_connect(self, source):
         if source.IsChecked():
             for item in self.portItems:
                 if item.IsChecked():
-                    sendMessage(topicName='GTE_connect', port=self.port_dict[item.GetItemLabelText()])
+                    sendMessage(topicName='GTE_connect', port=self.portdict[item.GetItemLabelText()])
                     source.Skip()
 
         else:
             self.timer.Stop()
             sendMessage(topicName='GTE_disconnect')
+
+    def refresh_ports(self, *args):
+        for item in self.GetMenuItems():
+            if item in self.portItems:
+                self.DestroyItem(item)
+
+        self.make_port_list()
+
+    def make_port_list(self):
+        self.portdict = {port[1]: port[0] for port in comports()}
+        self.portItems = [wx.MenuItem(parentMenu=self, id=wx.ID_ANY, text=port, kind=wx.ITEM_RADIO)
+                          for port in list(self.portdict.keys())]
+
+        for item in reversed(self.portItems):
+            self.Insert(0, item)
+
