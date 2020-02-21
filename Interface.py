@@ -1,12 +1,8 @@
 import wx
-from pubsub.pub import subscribe, sendMessage, addTopicDefnProvider, TOPIC_TREE_FROM_CLASS
+from pubsub.pub import subscribe, sendMessage
 from serial.tools.list_ports import comports
 from ThreadDecorators import in_main_thread
-
-import topic_def
-from Ventolino import Ventolino
-
-addTopicDefnProvider(topic_def, TOPIC_TREE_FROM_CLASS)
+from engine import Ventolino
 
 
 class VentolinoGUI(wx.Frame):
@@ -163,14 +159,3 @@ class PortMenu(wx.Menu):
         else:
             self.timer.Stop()
             sendMessage(topicName='GTE_disconnect')
-
-
-def main():
-    ex = wx.App()
-    eng = Ventolino()
-    g = VentolinoGUI(parent=None, channels=4)
-    ex.MainLoop()
-
-
-if __name__ == '__main__':
-    main()
