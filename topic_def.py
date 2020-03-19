@@ -12,7 +12,7 @@ class ETG_read_is_flow:
     UNDOCUMENTED: created without spec
     """
     
-    def msgDataSpec(channel=None, flow=None):
+    def msgDataSpec(channel, flow):
         """
         - channel: UNDOCUMENTED
         - flow: UNDOCUMENTED
@@ -34,7 +34,7 @@ class ETG_status:
     UNDOCUMENTED: created without spec
     """
     
-    def msgDataSpec(text=None):
+    def msgDataSpec(text):
         """
         - text: UNDOCUMENTED
         """
@@ -44,7 +44,7 @@ class GTE_connect:
     UNDOCUMENTED: created without spec
     """
     
-    def msgDataSpec(port=None):
+    def msgDataSpec(port):
         """
         - port: UNDOCUMENTED
         """
